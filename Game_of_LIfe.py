@@ -1,10 +1,11 @@
 import pygame, random, time
 
 
-#INIT PYGAME
-X, Y = 750, 750
-pygame.init()
-SCREEN = pygame.display.set_mode((X, Y))
+#SETTINGS
+X, Y = 1650, 920
+size = 125
+theme = "dark"
+game_mode = "normal"
 
 
 #COLOURS
@@ -46,7 +47,7 @@ def refresh():
 		for j in range(size):
 
 			if l_cells[i][j].mode == True:
-				pygame.draw.rect(SCREEN, clr_alive, pygame.Rect((scr_by_sz[0])*j, (scr_by_sz[1])*i, scr_by_sz[0], scr_by_sz[1]))
+				pygame.draw.rect(SCREEN, clr_alive, pygame.Rect((scr_by_sz[0])*j, (scr_by_sz[0])*i, scr_by_sz[0], scr_by_sz[0]))
 	pygame.display.update()
 
 
@@ -77,20 +78,42 @@ def update(n_c):
 	return n_c
 
 
-size = 50
+def prt(v_nm, x_var, y_var, f_clr, tilt=0, ft = None, bg_clr = None, align = "center"):
+    global font
+    if ft == None:
+        ft = font
+    if bg_clr==None:
+        text = ft.render(v_nm, True, f_clr)
+    else:
+        text = ft.render(v_nm, True, f_clr, bg_clr)
+    textRect = text.get_rect()
+    textRect = (int(x_var), int(y_var))
+    if tilt != 0:
+        text = pygame.transform.rotate(text, tilt)
+    if align == "center":
+        textRect = text.get_rect()
+        textRect.center = (int(x_var), int(y_var))
+    if align == "right":
+        text = ft.render(v_nm, True, white)
+        textRect = text.get_rect()
+        textRect.right = int(x_var)
+        textRect[1] = int(y_var)
+    SCREEN.blit(text, textRect)
+
+
 scr_by_sz = X//size, Y//size
 l_cells = []
-l_true = []
+down = False
+pygame.init()
+SCREEN = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-theme = "dark"
 if theme == "dark":
 	clr_dead = black()
 	clr_alive = white()
 else:
 	clr_dead = white()
 	clr_alive = black()
-game_mode = "normal"
-if game_mode == "create":
+if game_mode == "creative":
 	run = False
 	for i in range(size):
 		a=[]
@@ -106,10 +129,30 @@ if game_mode == "normal":
 			a.append(Cell((j, i), random.choice([True] + [False]*int(size//size**(1/2)))))
 		l_cells.append(a)
 
-down = False
+
+f_sz = int(X//51.2)
+f_nm = r"..\Fonts\visitor2.ttf"
+font = pygame.font.Font(f_nm, f_sz)
+
+
+prt("Press any key to Start", X//2, Y//2, white(), ft = pygame.font.Font(f_nm, int(100)))
+pygame.display.flip()
+brk=False
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            brk=True
+            break
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit(0)
+    if brk==True:
+        break
+
+
 l_tm = time.time()
 while True:	
-	if time.time() > l_tm + 0.25:
+	if time.time() > l_tm + 0.2:
 		refresh()
 		if run == True:
 			l_cells = update(l_cells)
@@ -133,6 +176,6 @@ while True:
 	if down == True:
 		x,y = pygame.mouse.get_pos()
 		try:
-			l_cells[(y//scr_by_sz[1])][(x//scr_by_sz[0])].mode = make
+			l_cells[(y//scr_by_sz[0])][(x//scr_by_sz[0])].mode = make
 		except:
 			pass
